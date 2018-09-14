@@ -1,0 +1,194 @@
+<mat-sidenav-container>
+    <mat-sidenav opened #sidenav mode="side">
+        <p><b>Welcome</b><a style="font-style:italic; color:rgb(35, 150, 75)"> {{user_name}}</a></p>
+        <button mat-button (click)="test ()">Display Current User</button>
+        <button mat-button (click)="changeMenu (0)">Display Tables & Data</button>
+        <button mat-button *ngIf="user_rank > 1" (click)="changeMenu (1)">Update Data (Rank > 1)</button>
+        <button mat-button *ngIf="user_rank > 2" (click)="changeMenu (2)" disabled>Insert Data (Rank > 2)</button>
+        <button mat-button *ngIf="user_rank > 3" (click)="changeMenu (3)">Create Table (Rank > 3)</button>
+        <button mat-button *ngIf="user_rank > 3" (click)="changeMenu (4)">Alter Table (Rank > 3)</button>
+    </mat-sidenav>
+    
+    <mat-sidenav-content>
+        <!-- Mat Card -->
+        <mat-card>
+            <!-- Display Tables & Data -->
+            <mat-card-content *ngIf="menuSelect == 0">
+                <div *ngIf="data == null" style="display: flex; flex-direction: column; justify-content: center; align-items: center">Table is loading...<mat-spinner [diameter]="50"></mat-spinner></div>
+                <div class="table" *ngIf="data != null">
+                    <mat-form-field appearance="fill" class="filter">
+                        <mat-label>Filter</mat-label>
+                        <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="keyword">
+                    </mat-form-field>
+                    <table mat-table [dataSource]="dataSource">
+                        <ng-container *ngFor="let clmn of columns; let i = index" matColumnDef={{clmn}}>
+                            <th mat-header-cell *matHeaderCellDef> {{clmn}} </th>
+                            <td mat-cell *matCellDef="let val"> {{val[i]}} </td>
+                        </ng-container>
+                        
+                        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+                    </table>
+                    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+                </div>
+
+                <div>
+                    <mat-form-field appearance="outline" class="tables">
+                        <mat-label>Select Table</mat-label>
+                        <mat-select placeholder="" name="tables" ngModel [formControl]="dataFormControl">
+                            <mat-option *ngFor="let tbl_name of tables" [value]="tbl_name">{{tbl_name}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-flat-button (click)="getData ()">Refresh</button>
+                </div>
+            </mat-card-content>
+            <!-- END-->
+
+            <!-- Search Data -->
+            <mat-card-header *ngIf="menuSelect != 0 && menuSelect != 3 && menuSelect != 4">
+                <div class="titleTables">
+                    <div>
+                        <mat-form-field class="tables">
+                            <mat-label>Select Table</mat-label>
+                            <mat-select placeholder="" name="tables" ngModel [formControl]="dataFormControl">
+                                <mat-option *ngFor="let tbl_name of tables" [value]="tbl_name">{{tbl_name}}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button mat-flat-button (click)="getData ()">Refresh</button>
+                    </div>
+                </div>
+                <mat-card-title>Search Data</mat-card-title>
+                <mat-card-subtitle>
+                    <form class="search" #srcForm="ngForm">
+                        <mat-icon aria-label="home">search</mat-icon>
+                        <mat-form-field method="GET">
+                            <mat-label>Search</mat-label>
+                            <input matInput name="search" type="text" ngModel #searchInput="ngModel" placeholder="keyword">
+                        </mat-form-field>
+                        <mat-form-field class="srcClmn">
+                            <mat-label>Column Names</mat-label>
+                            <mat-select placeholder="" name="srcClmn" ngModel>
+                                <mat-option *ngFor="let clmn of columns" [value]="clmn">{{clmn}}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button mat-flat-button (click)="searchData (searchInput.value, srcForm.value.srcClmn)">Search</button>
+                    </form>
+                </mat-card-subtitle>
+            </mat-card-header>
+            <!-- END-->
+    
+            <!-- Update Data -->
+            <mat-card-content *ngIf="menuSelect == 1">
+                <form class="editForm" #editForm="ngForm">
+                    <mat-form-field appearance="outline" *ngFor="let clmn of columns; let i = index">
+                        <mat-label>{{clmn}}</mat-label>
+                        <input matInput name={{i}} ngModel={{finded[i]||empty}} type="text">
+                    </mat-form-field>
+                    <button mat-flat-button (click)="updateData (editForm)">Update</button>
+                    <button mat-flat-button (click)="deleteData ()" color="warn" [disabled]="user_rank < 3">Delete</button>
+                    <button mat-raised-button [disabled]="user_rank < 3">Insert</button>
+                </form>
+            </mat-card-content>
+            <!-- END-->
+    
+            <!-- Set Table Name & Add Column -->
+            <mat-card-header *ngIf="menuSelect == 3">
+                <mat-card-title>Create Table</mat-card-title>
+                <mat-card-subtitle>
+                    <form class="search" #setTableForm="ngForm">
+                        <mat-form-field>
+                            <input matInput type="text" name="tableName" ngModel #tableInput="ngModel" placeholder="Table Name">
+                        </mat-form-field>
+                    </form>
+                    <mat-divider [vertical]="true"></mat-divider>
+                    <form class="search" #addClmnForm="ngForm">
+                        <mat-icon aria-label="add">playlist_add</mat-icon>
+                        <mat-form-field>
+                            <mat-label>Column Name</mat-label>
+                            <input matInput type="text" name="addClmn" ngModel #newClmnInput="ngModel">
+                        </mat-form-field>
+                        <button mat-flat-button (click)="addNewClmn (newClmnInput.value)">Add</button>
+                        <button mat-flat-button (click)="newColumns=['']; findedFeatures=[[]]" color="warn">Reset</button>
+                    </form>
+                </mat-card-subtitle>
+            </mat-card-header>
+            <!-- END-->
+
+            <!-- Search Table -->
+            <mat-card-header *ngIf="menuSelect == 4">
+                <mat-card-title>Alter Table</mat-card-title>
+                <mat-card-subtitle>
+                    <form class="search" #alterForm="ngForm">
+                        <mat-icon aria-label="srcTable">search</mat-icon>
+                        <mat-form-field>
+                            <mat-label>Table Name</mat-label>
+                            <input matInput type="text" name="srcTable" ngModel #srcTableInput="ngModel">
+                        </mat-form-field>
+                        <button mat-flat-button (click)="getTableFeatures (createForm, srcTableInput.value)">Search</button>
+                    </form>
+                </mat-card-subtitle>
+            </mat-card-header>
+    
+            <!-- Create Table -->
+            <mat-card-content *ngIf="menuSelect == 3 || menuSelect == 4">
+                <form class="createForm" #createForm="ngForm">
+                    <table cellpadding="15">
+                        <tr>
+                            <th *ngFor="let feature of features" style="color: rgb(75, 75, 75)"> {{feature}} </th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                        
+                        <tr *ngFor="let clmn of newColumns; let i = index">
+                            <td>
+                                <input matInput type="text" ngModel={{clmn}} name="clmn{{i}}" #clmnInput="ngModel" [disabled]="menuSelect == 4 || isLocked [i]">
+                            </td>
+                            <td>
+                                <mat-select placeholder="NUMBER" [(ngModel)]="findedFeatures[i][0]" name="type{{i}}" [disabled]="isLocked [i] || false">
+                                    <mat-option *ngFor="let type of types" [value]="type">
+                                        {{type}}
+                                    </mat-option>
+                                </mat-select>
+                            </td>
+                            <td>
+                                <input matInput type="number" [(ngModel)]="findedFeatures[i][1]" name="size{{i}}" #newClmnInput="ngModel" placeholder="10" [disabled]="isLocked [i] || false">
+                            </td>
+                            <td>
+                                <mat-checkbox  [(ngModel)]="findedFeatures[i][2]" name="notNull{{i}}" [disabled]="isLocked [i] || false"></mat-checkbox>
+                            </td>
+                            <td>
+                                <mat-checkbox [(ngModel)]="findedFeatures[i][3]" name="pk{{i}}" [disabled]="isLocked [i] || false"></mat-checkbox>
+                            </td>
+                            <td class="buttonArea">
+                                <button mat-button (click)="isLocked [i] = !isLocked [i]" *ngIf="!isLocked [i]"><mat-icon aria-label="remove">lock_open</mat-icon></button>
+                                <button mat-button (click)="isLocked [i] = !isLocked [i]" *ngIf="isLocked [i]"><mat-icon color="primary" aria-label="remove">lock</mat-icon></button>
+                                <button mat-button (click)="deleteColumn (i)"><mat-icon color="warn" aria-label="remove">delete</mat-icon></button>
+                            </td>
+                        </tr>
+                    </table>
+                    <button mat-flat-button (click)="createTable (createForm, 'tableInput.value')" *ngIf="menuSelect == 3">Create Table</button>
+                    <button mat-flat-button (click)="saveTable (createForm)" *ngIf="menuSelect == 4">Save</button>
+                </form>
+            </mat-card-content>
+            <!-- END-->
+
+            <!-- Alter Table -->
+            <mat-card-content *ngIf="menuSelect == 5">
+                <table cellpadding="15">
+                    <tr>
+                        <th *ngFor="let feature of features"> {{feature}} </th>
+                    </tr>
+
+                    <tr *ngFor="let clmn of newColumns">
+                        <td>{{clmn}}</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                    </tr>
+                </table>
+            </mat-card-content>
+            <!-- END -->
+        </mat-card>
+        <!-- END -->
+    </mat-sidenav-content>
+</mat-sidenav-container>

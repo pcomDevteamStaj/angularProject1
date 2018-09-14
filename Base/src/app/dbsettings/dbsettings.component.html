@@ -1,0 +1,32 @@
+<body>
+  <form (submit)="changeDatabase (settingsForm)" #settingsForm="ngForm" method="POST">
+    <div class="host">
+      <mat-form-field appearance="outline" class="host">
+        <mat-label>Database Host</mat-label>
+        <input matInput name="host" type="text" ngModel #hostInput="ngModel" placeholder="example.com">
+      </mat-form-field>
+      <span>:</span>
+      <mat-form-field appearance="outline" class="port">
+        <mat-label>Port</mat-label>
+        <input matInput name="port" type="number" ngModel #portInput="ngModel" placeholder="8080">
+      </mat-form-field>
+      <span>/</span>
+      <mat-form-field appearance="outline" class="sid">
+        <mat-label>SID</mat-label>
+        <input matInput name="sid" type="text" ngModel #sidInput="ngModel" placeholder="IDLE">
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Database Username</mat-label>
+      <input matInput name="username" type="text" ngModel #usernameInput="ngModel" placeholder="Username">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline">
+      <mat-label>Database Password</mat-label>
+      <input matInput name="password" type="password" ngModel #passwordInput="ngModel" placeholder="Password">
+    </mat-form-field>
+    
+    <button mat-flat-button color="primary" type="submit">Connect</button>
+  </form>
+</body>

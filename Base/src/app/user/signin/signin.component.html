@@ -1,0 +1,47 @@
+<!--
+  <body>
+    <mat-card>
+      <div class="example-container">
+        
+        <form (submit)="loginControl (loginForm)" #loginForm="ngForm" method="POST">
+          <mat-form-field>
+            <input matInput name="username" type="text" ngModel placeholder="Username" #usernameInput="ngModel">
+            <mat-icon matSuffix> perm_identity </mat-icon>
+          </mat-form-field>
+          <div *ngIf="loginForm.submitted && !usernameInput.valid">Username is required!</div>
+          
+          <mat-form-field>
+            <input type="password" name="password" ngModel matInput placeholder="Password" #passwordInput="ngModel">
+            <mat-icon matSuffix> vpn_key </mat-icon>
+          </mat-form-field>
+          
+          <div class="example-row">
+            <button mat-raised-button color="primary" type="submit">Login</button>
+            <span></span>
+            <a href="/forgot-pass">Forgot Password?</a>
+            <a href="/signup">Create an account</a>
+          </div>
+        </form>
+        
+        <br>
+        <a href="/user-panel">User Panel</a>
+      </div>
+    </mat-card>
+  </body>
+  <h2>Company Name</h2>
+-->
+<body>
+  <form (submit)="loginControl (loginForm)" #loginForm="ngForm" method="POST">
+    <mat-form-field appearance="outline">
+      <mat-label>Username</mat-label>
+      <input matInput name="username" type="text" ngModel #usernameInput="ngModel" placeholder="">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input matInput name="password" type="password" ngModel #passwordInput="ngModel" placeholder="">
+    </mat-form-field>
+    
+    <button mat-flat-button color="primary" type="submit">Login</button>
+  </form>
+</body>

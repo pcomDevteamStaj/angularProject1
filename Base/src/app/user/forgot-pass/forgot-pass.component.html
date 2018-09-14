@@ -1,0 +1,23 @@
+<mat-card>
+    <form class="example-form">
+        <div class="example-container">
+<p>Şifreniz mail adresinize gönderilecektir.</p>
+
+  <mat-form-field class="example-full-width">
+    <input matInput placeholder="E-mail" [formControl]="emailFormControl" required>
+    <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
+      <strong>Geçersiz e-mail</strong>
+    </mat-error>
+    <mat-error *ngIf="emailFormControl.hasError('required')">
+      Lütfen e-mail adresinizi girin
+    </mat-error>
+  </mat-form-field>
+
+
+    <div class="button-row">
+      <button mat-raised-button color="primary" (click)="reserPass()">Gönder</button>
+    </div>
+
+</div>
+</form>
+</mat-card>

@@ -1,0 +1,23 @@
+<mat-toolbar color="primary">
+  <div *ngIf="!isAllowed">
+    <a href='/sign-up' ng-show="false">Sign Up</a>
+    <span class="example-fill-remaining-space"></span>
+    <mat-icon class="example-icon">verified_user</mat-icon>
+    <a href='/login'>Login</a>  
+  </div>
+  
+  <div *ngIf="isAllowed">
+    <button mat-button color="basic" routerLink="/user-panel">
+      <mat-icon aria-label="home">home</mat-icon>
+      Home
+    </button>
+    <span class="example-fill-remaining-space"></span>
+    <button mat-button color="basic" routerLink="/dbsettings">Change Database</button>
+    <button mat-flat-button color="warn" (click) = "authService.logout ()">Logout</button>
+    <!--
+      <button mat-mini-fab color="warn" (click) = "authService.logout ()">
+        <mat-icon aria-label="logout">power_settings_new</mat-icon>
+      </button>
+    -->
+  </div>
+</mat-toolbar>

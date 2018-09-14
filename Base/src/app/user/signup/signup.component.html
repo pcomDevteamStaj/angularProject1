@@ -1,0 +1,55 @@
+<body>
+  <form (submit)="signUpControl (postForm)" #postForm="ngForm" method="POST">
+    <div class="example-container">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput type="text" name="username" ngModel required placeholder="" #username="ngModel">
+        <mat-error *ngIf="username.invalid">Please enter a valid username!</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" name="pass" [(ngModel)]="pass" required placeholder="" #password="ngModel">
+        <mat-error *ngIf="password.invalid">Please enter your password!</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password (Again)</mat-label>
+        <input matInput type="password" name="repass" [(ngModel)]="repass" required placeholder="" #repassword="ngModel" (keyup)="comparePass($event)">
+        <label class="err" *ngIf="showPassErr === false">Passwords do not <strong>match!</strong></label>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>E-mail</mat-label>
+        <input matInput placeholder="" name="mail" [formControl]="emailFormControl" required >
+        <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
+          <strong>Invalid e-mail!</strong>
+        </mat-error>
+        <mat-error *ngIf="emailFormControl.hasError('required')">
+          Please enter your e-mail!
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="example-full-width" appearance="outline">
+        <mat-label>Phone</mat-label>
+        <span matPrefix>+90 &nbsp;</span>
+        <input class="phone" type="phone" name="phone" matInput ngModel placeholder="" maxlength=10>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+          <mat-label>Job</mat-label>
+        <mat-select placeholder="" name="title" ngModel>
+          <mat-option *ngFor="let i of titles" [value]="i">{{i}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      
+      <span matPrefix>Gender </span>
+      <mat-radio-group class="example-radio-group" [(ngModel)]="gender" name="gender">
+        <mat-radio-button class="example-radio-button" *ngFor="let g of genders" [value]="g">{{g}}</mat-radio-button>
+      </mat-radio-group>
+
+      <button mat-flat-button color="primary" [disabled]="!postForm.form.valid" type="submit">Register</button>
+    </div>
+  </form>
+</body>

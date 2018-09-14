@@ -1,0 +1,165 @@
+<body>
+<!--
+    <table>
+        <tr>
+            <th *ngFor="let clmn of columns">{{clmn}}</th>
+        </tr>
+
+        <tr *ngFor="let obj of data">
+            <td *ngFor="let val of obj">{{val}}</td>
+        </tr>
+    </table>
+-->
+    <!-- Material Table -->
+    <div class="table">
+        <mat-form-field appearance="fill" class="filter">
+            <mat-label>Filter</mat-label>
+            <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="keyword">
+        </mat-form-field>
+        <table mat-table [dataSource]="dataSource">
+            <ng-container *ngFor="let clmn of columns; let i = index" matColumnDef={{clmn}}>
+                <th mat-header-cell *matHeaderCellDef> {{clmn}} </th>
+                <td mat-cell *matCellDef="let val"> {{val[i]}} </td>
+            </ng-container>
+            
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    </div>
+    <!-- END-->
+    <!-- Refresh Table -->
+    <div>
+        <mat-form-field appearance="outline" class="tables">
+            <mat-label>Select Table</mat-label>
+            <mat-select placeholder="" name="tables" ngModel [formControl]="dataFormControl">
+                <mat-option *ngFor="let tbl_name of tables" [value]="tbl_name">{{tbl_name}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button mat-flat-button (click)="getData (10)">Refresh</button>
+    </div>
+    <!-- END-->
+    <span></span>
+    <span></span>
+    <div class="menu">
+        <button mat-flat-button (click)="test ()">Display Current User</button>
+        <button mat-flat-button *ngIf="user_rank > 1" (click)="changeMenu (0)">Update Data (Rank > 1)</button>
+        <button mat-flat-button *ngIf="user_rank > 99" (click)="changeMenu (1)">Delete Data (Rank > 2)</button>
+        <button mat-flat-button *ngIf="user_rank > 2" (click)="changeMenu (2)">Insert Data (Rank > 2)</button>
+        <button mat-flat-button *ngIf="user_rank > 3" (click)="changeMenu (3)">Create Table (Rank > 3)</button>
+        <button mat-flat-button *ngIf="user_rank > 3" (click)="changeMenu (4)">Alter Table (Rank > 3)</button>
+    </div>
+    <span></span>
+    <span></span>
+    <mat-card *ngIf="user_rank > 1">
+        <!-- Search Data -->
+        <mat-card-header *ngIf="menuSelect != 3 && menuSelect != 4">
+            <mat-card-title>Search Data</mat-card-title>
+            <mat-card-subtitle>
+                <form class="search" #srcForm="ngForm">
+                    <mat-icon aria-label="home">search</mat-icon>
+                    <mat-form-field method="GET">
+                        <mat-label>Search</mat-label>
+                        <input matInput name="search" type="text" ngModel #searchInput="ngModel" placeholder="keyword">
+                    </mat-form-field>
+                    <mat-form-field class="srcClmn">
+                        <mat-label>Column Names</mat-label>
+                        <mat-select placeholder="" name="srcClmn" ngModel>
+                            <mat-option *ngFor="let clmn of columns" [value]="clmn">{{clmn}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-flat-button (click)="searchData (searchInput.value, srcForm.value.srcClmn)">Search</button>
+                </form>
+            </mat-card-subtitle>
+        </mat-card-header>
+        <!-- END-->
+
+        <!-- Update Data -->
+        <mat-card-content *ngIf="menuSelect == 0">
+            <form class="editForm" #editForm="ngForm">
+                <mat-form-field appearance="outline" *ngFor="let clmn of columns; let i = index">
+                <mat-label>{{clmn}}</mat-label>
+                <input matInput name={{i}} ngModel={{finded[i]||empty}} type="text">
+                </mat-form-field>
+                <button mat-flat-button (click)="updateData (editForm)">Update</button>
+                <button mat-flat-button (click)="deleteData ()" color="warn">Delete</button>
+            </form>
+        </mat-card-content>
+        <!-- END-->
+
+        <!-- Delete Data -->
+        <mat-card-content *ngIf="menuSelect == 1">
+            <table>
+                <tr>
+                    <th *ngFor="let clmn of columns">{{clmn}}</th>
+                </tr>
+                <tr>
+                    <td *ngFor="let data of finded">{{data}}</td>
+                </tr>
+            </table>
+            <button mat-flat-button (click)="deleteData ()">Delete</button>
+        </mat-card-content>
+        <!-- END-->
+
+        <!-- Set Table Name & Add Column -->
+        <mat-card-header *ngIf="menuSelect == 3">
+            <mat-card-title>Create Table</mat-card-title>
+            <mat-card-subtitle>
+                <form class="search">
+                    <mat-form-field>
+                        <input matInput type="text" name="tableName" ngModel #tableInput="ngModel" placeholder="Table Name">
+                    </mat-form-field>
+                </form>
+                <mat-divider [vertical]="true"></mat-divider>
+                <form class="search" #addClmnForm="ngForm">
+                    <mat-icon aria-label="add">playlist_add</mat-icon>
+                    <mat-form-field>
+                        <mat-label>Column Name</mat-label>
+                        <input matInput type="text" name="addClmn" ngModel #newClmnInput="ngModel">
+                    </mat-form-field>
+                    <button mat-flat-button (click)="addNewClmn (newClmnInput.value)">Add</button>
+                    <button mat-flat-button (click)="newColumns=['']" color="warn">Reset</button>
+                </form>
+            </mat-card-subtitle>
+        </mat-card-header>
+        <!-- END-->
+
+        <!-- Create Table -->
+        <mat-card-content *ngIf="menuSelect == 3">
+            <form class="createForm" #createForm="ngForm">
+                <table>
+                    <tr>
+                        <th>NAME</th>
+                        <th>TYPE</th>
+                        <th>SIZE (byte)</th>
+                        <th>NOT NULL</th>
+                        <th>Primary Key</th>
+                    </tr>
+
+                    <tr *ngFor="let clmn of newColumns">
+                        <td>{{clmn}}</td>
+                        <td>
+                            <mat-select placeholder="NUMBER">
+                                <mat-option *ngFor="let type of types" [value]="type" name="kind">
+                                    {{type}}
+                                </mat-option>
+                            </mat-select>
+                        </td>
+                        <td>
+                            <input matInput type="number" name="size" ngModel #newClmnInput="ngModel" placeholder="10">
+                        </td>
+                        <td>
+                            <mat-checkbox name="notnull"></mat-checkbox>
+                        </td>
+                        <td>
+                            <mat-checkbox name="primary"></mat-checkbox>
+                        </td>
+                    </tr>
+                </table>
+                <button mat-flat-button (click)="test(createForm)">Create Table</button>
+            </form>
+        </mat-card-content>
+        <!-- END-->
+
+    </mat-card>
+</body>
